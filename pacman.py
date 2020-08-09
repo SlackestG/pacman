@@ -22,6 +22,48 @@ class BoardElement:
 	def Draw(self,canvas):
 		canvas.blit(self.image, self.pos)
 
+class Pacman(BoardElement):
+	
+	def __init__(self, pos, length, width, image, direction):
+		super().__init__(pos, length, width, image)
+		self.direction = direction
+	
+	def Move(self, step):
+		flag_x = 1
+		flag_y = 1
+		for bd in list(boundaries):
+			if (bd.pos[0]<self.pos[0]+step[0]<bd.pos[0]+bd.length or bd.pos[0]<self.pos[0]+step[0]+self.length<bd.pos[0]+bd.length) and (bd.pos[1]<self.pos[1]<bd.pos[1]+bd.width):
+				flag_x = 0
+			if (bd.pos[1]<self.pos[1]+step[1]<bd.pos[1]+bd.width or bd.pos[1]<self.pos[1]+step[1]+self.length<bd.pos[1]+bd.width) and (bd.pos[0]<self.pos[0]<bd.pos[0]+bd.length):
+				flag_y = 0
+			if (bd.pos[1]<self.pos[1]<bd.pos[1]+bd.width) or (bd.pos[1]<self.pos[1]+self.length<bd.pos[1]+bd.width) or (self.pos[1]<=bd.pos[1] and self.pos[1]+self.length>=bd.pos[1]+bd.width):
+				if (bd.pos[0]<self.pos[0]+step[0]<bd.pos[0]+bd.length or bd.pos[0]<self.pos[0]+self.length+step[0]<bd.pos[0]+bd.length):
+					flag_x =0
+			if (bd.pos[0]<self.pos[0]<bd.pos[0]+bd.length) or (bd.pos[0]<self.pos[0]+self.length<bd.pos[0]+bd.length) or (self.pos[0]<=bd.pos[0] and self.pos[0]+self.length>=bd.pos[0]+bd.length):
+				if (bd.pos[1]<self.pos[1]+step[1]<bd.pos[1]+bd.width or bd.pos[1]<self.pos[1]+self.length+step[1]<bd.pos[1]+bd.width):
+					flag_y =0
+		if (self.direction == 'right' or self.direction == 'left') and flag_x == 1:
+			self.pos[0] += step[0]
+		elif flag_y == 1:
+			self.pos[1] += step[1]
+		if self.pos[0] >= width:
+			self.pos[0] = 0
+		if self.pos[0] <=- self.width:
+			self.pos[0] = width
+	
+	def ChangeDirection(self, direction):
+		if self.direction == direction:
+			return
+		self.direction = direction
+		if direction == 'right':
+			self.image = PacImg[0]
+		elif direction == 'left':
+			self.image = PacImg[1]
+		elif direction == 'up':
+			self.image = PacImg[2]
+		else:
+			self.image = PacImg[3]
+
 boundaryImg = []
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary1.png')))
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary2.png')))
@@ -30,6 +72,12 @@ boundaryImg.append(pygame.image.load(os.path.join('images','boundary4.png')))
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary5.png')))
 
 foodImg = pygame.image.load(os.path.join('images','food.png'))
+
+PacImg = []
+PacImg.append(pygame.image.load(os.path.join('images','pac_right.png')))
+PacImg.append(pygame.image.load(os.path.join('images','pac_left.png')))
+PacImg.append(pygame.image.load(os.path.join('images','pac_up.png')))
+PacImg.append(pygame.image.load(os.path.join('images','pac_down.png')))
 
 boundaries = set([])
 foods = set([])
@@ -107,12 +155,41 @@ def DrawElements(canvas):
 
 def Play():
 	AddElements()
+	GameObject = Pacman([200,10], 50, 50, PacImg[0], 'right')
+	x_change = 5
+	y_change = 0
+	direction = None
 	while True:
 		display.fill(background_color)
 		DrawElements(display)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				QuiteGame()
+			if event.type == pygame.QUIT:
+				QuiteGame()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RIGHT:
+					x_change = 5
+					y_change = 0
+					direction = 'right'
+				if event.key == pygame.K_LEFT:
+					x_change = -5
+					y_change = 0
+					direction = 'left'
+				if event.key == pygame.K_UP:
+					y_change = -5
+					x_change = 0
+					direction = 'up'
+				if event.key == pygame.K_DOWN:
+					y_change = 5
+					x_change = 0
+					direction = 'down'
+			if event.type == pygame.KEYUP:
+				direction = None
+		GameObject.Draw(display)
+		GameObject.Move([x_change, y_change])
+		if direction:
+			GameObject.ChangeDirection(direction)
 		pygame.display.update()
 		clock.tick(30)
 
