@@ -64,6 +64,31 @@ class Pacman(BoardElement):
 		else:
 			self.image = PacImg[3]
 
+class Ghost(BoardElement):
+	
+	def __init__(self, pos, length, width, image, direction):
+		super().__init__(pos, length, width, image)
+		self.direction = direction
+	
+	def Move(self):
+		if self.direction == 'right':
+			self.pos[0] += 5
+			if self.pos[0] >= width-self.length or self.pos[0] == 360:
+				self.direction = 'left'
+		elif self.direction == 'left':
+			self.pos[0] -= 5
+			if self.pos[0] <= 0 or self.pos[0] == 420:
+				self.direction = 'right'
+		elif self.direction == 'up':
+			self.pos[1] -= 5
+			if self.pos[1] <= 0:
+				self.direction = 'down'
+		elif self.direction == 'down':
+			self.pos[1] += 5
+			if self.pos[1] >= height-self.length:
+				self.direction = 'up'
+
+
 boundaryImg = []
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary1.png')))
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary2.png')))
@@ -79,8 +104,11 @@ PacImg.append(pygame.image.load(os.path.join('images','pac_left.png')))
 PacImg.append(pygame.image.load(os.path.join('images','pac_up.png')))
 PacImg.append(pygame.image.load(os.path.join('images','pac_down.png')))
 
+ghostImg = pygame.image.load(os.path.join('images','ghost.png'))
+
 boundaries = set([])
 foods = set([])
+ghosts = set([])
 
 def AddElements():
 	global boundaries,foods,boundaryImg,foodImg
@@ -147,11 +175,21 @@ def AddElements():
 			x += 50
 		else:
 			x += 20
+	ghosts.add(Ghost([420,20],50,50,ghostImg,'down'))
+	ghosts.add(Ghost([360,640],50,50,ghostImg,'up'))
+	ghosts.add(Ghost([360,220],50,50,ghostImg,'left'))
+	ghosts.add(Ghost([420,430],50,50,ghostImg,'right'))
+	ghosts.add(Ghost([420,220],50,50,ghostImg,'right'))
+	ghosts.add(Ghost([360,430],50,50,ghostImg,'left'))
+
 def DrawElements(canvas):
 	for bd in list(boundaries):
 		bd.Draw(canvas)
 	for fd in list(foods):
 		fd.Draw(canvas)
+	for gh in list(ghosts):
+		gh.Draw(canvas)
+		gh.Move()
 
 def Play():
 	AddElements()
