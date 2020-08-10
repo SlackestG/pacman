@@ -7,7 +7,9 @@ height = 700
 pygame.init()
 
 background_color = pygame.Color(0,0,0)
-font_color = pygame.Color(35,40,125)
+white = pygame.Color(255,255,255)
+button_color = pygame.Color(36,38,123)
+hover_color = pygame.Color(0,255,0)
 
 display = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Pacman')
@@ -207,6 +209,37 @@ def DrawElements(canvas):
 		gh.Draw(canvas)
 		gh.Move()
 
+def Button():
+	pos = pygame.mouse.get_pos()
+	click = pygame.mouse.get_pressed()
+
+	if 320<pos[0]<470 and 320<pos[1]<380:
+		pygame.draw.rect(display,hover_color,[320,320,150,60])
+		if click[0]==1:
+			return False
+	else:
+		pygame.draw.rect(display,button_color,[320,320,150,60])
+	font = pygame.font.SysFont("comicsansms",20)
+	text = font.render("Play",True,white)
+	display.blit(text,(370,335))
+	return True
+
+def Menu():
+	font = pygame.font.SysFont("comicsansms", 100)
+	text = font.render("Pacman", True, button_color)
+	intro = True
+	while intro:
+		display.fill(background_color)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				QuiteGame()
+		display.blit(text, (220, 150))
+		intro = Button()
+		pygame.display.update()
+		clock.tick(15)
+	Play()
+
+
 def Play():
 	AddElements()
 	GameObject = Pacman([200,10], 50, 50, PacImg[0], 'right')
@@ -248,7 +281,7 @@ def Play():
 		clock.tick(30)
 def GameOver(message):
 	font = pygame.font.SysFont("comicsansms",60)
-	text = font.render(message, True, font_color)
+	text = font.render(message, True, button_color)
 	while True:
 		display.fill(background_color)
 		for event in pygame.event.get():
@@ -263,4 +296,4 @@ def QuiteGame():
 	sys.exit()
 
 if __name__ == '__main__':
-	Play()
+	Menu()
