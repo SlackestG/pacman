@@ -1,10 +1,13 @@
 import pygame
-import os,sys
+import os,sys,math
 
 width = 830
 height = 700
 
+pygame.init()
+
 background_color = pygame.Color(0,0,0)
+font_color = pygame.Color(35,40,125)
 
 display = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Pacman')
@@ -50,6 +53,19 @@ class Pacman(BoardElement):
 			self.pos[0] = 0
 		if self.pos[0] <=- self.width:
 			self.pos[0] = width
+		for fd in list(foods):
+			if (self.pos[0]<fd.pos[0]<self.pos[0]+self.width) and (self.pos[1]<fd.pos[1]<self.pos[1]+self.width):
+				foods.remove(fd)
+		if(len(foods)) == 0:
+			GameOver("You win")
+		flag = False
+		for gh in list(ghosts):
+			dist = math.sqrt(((gh.pos[0]-self.pos[0])**2) + ((gh.pos[1]-self.pos[1])**2))
+			if dist <= 40:
+				flag = True
+				break
+		if flag:
+			GameOver("You Loose")
 	
 	def ChangeDirection(self, direction):
 		if self.direction == direction:
@@ -230,6 +246,17 @@ def Play():
 			GameObject.ChangeDirection(direction)
 		pygame.display.update()
 		clock.tick(30)
+def GameOver(message):
+	font = pygame.font.SysFont("comicsansms",60)
+	text = font.render(message, True, font_color)
+	while True:
+		display.fill(background_color)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				QuiteGame()
+		display.blit(text,(250,300))
+		pygame.display.update()
+		clock.tick(15)
 
 def QuiteGame():
 	pygame.quit()
