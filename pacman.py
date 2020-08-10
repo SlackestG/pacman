@@ -4,18 +4,22 @@ import os,sys,math
 width = 830
 height = 700
 
+#initialize pygame
 pygame.init()
 
+#some rgb colors
 background_color = pygame.Color(0,0,0)
 white = pygame.Color(255,255,255)
 button_color = pygame.Color(36,38,123)
 hover_color = pygame.Color(0,255,0)
 
+#intialize window,caption and frame per second's clock
 display = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Pacman')
 clock = pygame.time.Clock()
 
 
+#class for boundary and foods
 class BoardElement:
 	
 	def __init__(self, pos, length, width, image):
@@ -27,6 +31,7 @@ class BoardElement:
 	def Draw(self,canvas):
 		canvas.blit(self.image, self.pos)
 
+#pacman class
 class Pacman(BoardElement):
 	
 	def __init__(self, pos, length, width, image, direction):
@@ -82,6 +87,7 @@ class Pacman(BoardElement):
 		else:
 			self.image = PacImg[3]
 
+#ghost class
 class Ghost(BoardElement):
 	
 	def __init__(self, pos, length, width, image, direction):
@@ -107,6 +113,7 @@ class Ghost(BoardElement):
 				self.direction = 'up'
 
 
+#import images
 boundaryImg = []
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary1.png')))
 boundaryImg.append(pygame.image.load(os.path.join('images','boundary2.png')))
@@ -124,10 +131,12 @@ PacImg.append(pygame.image.load(os.path.join('images','pac_down.png')))
 
 ghostImg = pygame.image.load(os.path.join('images','ghost.png'))
 
+#initialize empty sets
 boundaries = set([])
 foods = set([])
 ghosts = set([])
 
+#populate boundary, foods and ghosts in empty sets
 def AddElements():
 	global boundaries,foods,boundaryImg,foodImg
 	boundaries.add(BoardElement([0,0],830,10,boundaryImg[0]))
@@ -200,6 +209,7 @@ def AddElements():
 	ghosts.add(Ghost([420,220],50,50,ghostImg,'right'))
 	ghosts.add(Ghost([360,430],50,50,ghostImg,'left'))
 
+#draw boundary, foods and ghosts in the board
 def DrawElements(canvas):
 	for bd in list(boundaries):
 		bd.Draw(canvas)
@@ -209,6 +219,7 @@ def DrawElements(canvas):
 		gh.Draw(canvas)
 		gh.Move()
 
+#button functionality
 def Button():
 	pos = pygame.mouse.get_pos()
 	click = pygame.mouse.get_pressed()
@@ -224,6 +235,7 @@ def Button():
 	display.blit(text,(370,335))
 	return True
 
+#introduction menu with play button
 def Menu():
 	font = pygame.font.SysFont("comicsansms", 100)
 	text = font.render("Pacman", True, button_color)
@@ -240,6 +252,7 @@ def Menu():
 	Play()
 
 
+#main function to play the game
 def Play():
 	AddElements()
 	GameObject = Pacman([200,10], 50, 50, PacImg[0], 'right')
@@ -279,6 +292,8 @@ def Play():
 			GameObject.ChangeDirection(direction)
 		pygame.display.update()
 		clock.tick(30)
+
+#game over screen
 def GameOver(message):
 	font = pygame.font.SysFont("comicsansms",60)
 	text = font.render(message, True, button_color)
@@ -291,9 +306,11 @@ def GameOver(message):
 		pygame.display.update()
 		clock.tick(15)
 
+#quite the game window
 def QuiteGame():
 	pygame.quit()
 	sys.exit()
 
+#game starts with introduction menu
 if __name__ == '__main__':
 	Menu()
