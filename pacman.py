@@ -18,6 +18,8 @@ display = pygame.display.set_mode((width,height))
 pygame.display.set_caption('Pacman')
 clock = pygame.time.Clock()
 
+score = 0
+
 
 #class for boundary and foods
 class BoardElement:
@@ -39,6 +41,7 @@ class Pacman(BoardElement):
 		self.direction = direction
 	
 	def Move(self, step):
+		global score
 		flag_x = 1
 		flag_y = 1
 		for bd in list(boundaries):
@@ -62,6 +65,7 @@ class Pacman(BoardElement):
 			self.pos[0] = width
 		for fd in list(foods):
 			if (self.pos[0]<fd.pos[0]<self.pos[0]+self.width) and (self.pos[1]<fd.pos[1]<self.pos[1]+self.width):
+				score += 5
 				foods.remove(fd)
 		if(len(foods)) == 0:
 			GameOver("You win")
@@ -219,6 +223,13 @@ def DrawElements(canvas):
 		gh.Draw(canvas)
 		gh.Move()
 
+#score board
+def ScoreBoard():
+	global score
+	font = pygame.font.SysFont("comicsansms", 25)
+	text = font.render("Score: "+str(score), True, white)
+	display.blit(text, (5, 5))
+
 #button functionality
 def Button():
 	pos = pygame.mouse.get_pos()
@@ -290,6 +301,7 @@ def Play():
 		GameObject.Move([x_change, y_change])
 		if direction:
 			GameObject.ChangeDirection(direction)
+		ScoreBoard()
 		pygame.display.update()
 		clock.tick(30)
 
@@ -302,6 +314,7 @@ def GameOver(message):
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				QuiteGame()
+		ScoreBoard()
 		display.blit(text,(250,300))
 		pygame.display.update()
 		clock.tick(15)
